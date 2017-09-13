@@ -1,0 +1,6 @@
+repo: https://github.com/juju-solutions/layer-cdk-service-kicker.git
+defines:
+  services:
+    type: array
+    items:
+      type: string
