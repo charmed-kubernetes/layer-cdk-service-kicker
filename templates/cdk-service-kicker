@@ -1,12 +1,16 @@
 #!/bin/sh
 set -eu
 
-# This service runs for a few minutes and restarts any failing CDK services
-# it sees during that time.
-#
-# This is a hacky workaround for this bug:
-# https://github.com/juju-solutions/bundle-canonical-kubernetes/issues/357
+# This service runs on boot to work around issues relating to LXD and snapd.
 
+# Workaround for https://github.com/conjure-up/conjure-up/issues/1448
+(set +e
+  echo "applying snapd apparmor profiles"
+  apparmor_parser /var/lib/snapd/apparmor/profiles/*
+  echo "apparmor_parser: exit status $?"
+)
+
+# Workaround for https://github.com/juju-solutions/bundle-canonical-kubernetes/issues/357
 services="{{services}}"
 
 deadline="$(expr "$(date +%s)" + 600)"
