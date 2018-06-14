@@ -4,11 +4,15 @@ set -eu
 # This service runs on boot to work around issues relating to LXD and snapd.
 
 # Workaround for https://github.com/conjure-up/conjure-up/issues/1448
-(set +e
-  echo "applying snapd apparmor profiles"
-  apparmor_parser /var/lib/snapd/apparmor/profiles/*
-  echo "apparmor_parser: exit status $?"
-)
+if [ -f '/proc/1/environ' ] && grep '^container=lxc' /proc/1/environ; then
+  echo "lxc detected, applying snapd apparmor profiles"
+  (set +e
+    apparmor_parser /var/lib/snapd/apparmor/profiles/*
+    echo "apparmor_parser: exit status $?"
+  )
+else
+  echo "lxc not detected, skipping snapd apparmor profiles"
+fi
 
 # Workaround for https://github.com/juju-solutions/bundle-canonical-kubernetes/issues/357
 services="{{services}}"
